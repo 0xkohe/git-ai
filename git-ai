@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Usage: git ai commit [model]
+# model: claude (default), copilot, codex
+
+COMMAND=$1
+MODEL=${2:-claude}
+
+if [ "$COMMAND" != "commit" ]; then
+  echo "Usage: git ai commit [claude|copilot|codex]"
+  exit 1
+fi
+
+DIFF=$(git diff --staged)
+if [ -z "$DIFF" ]; then
+  echo "Error: No changes staged. Use 'git add' first."
+  exit 1
+fi
+
+PROMPT="Generate ONE concise Conventional Commit message (feat:, fix:, refactor:, docs:, chore:). Output only the message. No quotes. No markdown."
+
+echo "Generating message using $MODEL..."
+
+case $MODEL in
+  claude)
+    MSG=$(claude -p "$DIFF $PROMPT")
+    ;;
+  copilot)
+    MSG=$(copilot -p "$DIFF $PROMPT")
+    ;;
+  codex)
+    MSG=$(codex exec "echo '$DIFF' | cat $PROMPT")
+    ;;
+  *)
+    echo "Unknown model: $MODEL"
+    exit 1
+    ;;
+esac
+
+echo "---"
+echo "Proposed: $MSG"
+echo "---"
+
+git commit -m "$MSG" -e
