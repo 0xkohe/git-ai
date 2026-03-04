@@ -1,27 +1,26 @@
 # git-ai
 
-AI を使って `git ai commit` でコミットメッセージを自動生成するシェルスクリプトです。  
-スピナーアニメーションで生成中の状態を表示し、指定したモデルが未インストールや失敗した場合は自動的に次のモデルへフォールバックします。
+A shell script that adds a `git ai commit` command — it uses an AI model to auto-generate a [Conventional Commit](https://www.conventionalcommits.org/) message from your staged diff, displays a spinner animation while generating, and automatically falls back to the next available AI if one is not found or fails.
 
-> 📖 [English version → README.en.md](./README.en.md)
+> 📖 [日本語版 → README.ja.md](./README.ja.md)
 
 ---
 
-## 対応モデル
+## Supported Models
 
-| モデル | CLI コマンド |
+| Model | CLI Command |
 |---|---|
 | Claude | `claude` |
 | GitHub Copilot | `copilot` |
 | OpenAI Codex | `codex` |
 
-モデルを指定しない場合は `claude → copilot → codex` の順に自動検出します。
+If no model is specified, models are auto-detected in order: `claude → copilot → codex`.
 
 ---
 
-## 前提条件
+## Prerequisites
 
-以下のいずれかの CLI ツールをインストールしてください：
+Install at least one of the following CLI tools:
 
 - [Claude CLI](https://docs.anthropic.com/claude/docs/cli) — `claude`
 - [GitHub Copilot CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli) — `copilot`
@@ -29,9 +28,9 @@ AI を使って `git ai commit` でコミットメッセージを自動生成す
 
 ---
 
-## インストール
+## Installation
 
-### Option A: インストールスクリプト（推奨）
+### Option A: Install Script (Recommended)
 
 ```bash
 git clone https://github.com/0xkohe/git-ai.git
@@ -39,55 +38,55 @@ cd git-ai
 bash install.sh
 ```
 
-### Option B: 手動インストール（vi）
+### Option B: Manual Install (vi)
 
-Step 1: スクリプトを作成
+**Step 1: Create the script**
 
 ```bash
 sudo vi /usr/local/bin/git-ai
 ```
 
-vi の操作手順：
-1. `i` キーで挿入モードに入る
-2. `git-ai` の内容を貼り付ける
-3. `Esc` でコマンドモードに戻る
-4. `:wq` と入力して Enter で保存終了
+vi steps:
+1. Press `i` to enter Insert mode
+2. Paste the contents of `git-ai` from this repo
+3. Press `Esc` to return to Command mode
+4. Type `:wq` and press Enter to save and exit
 
-Step 2: 実行権限を付与
+**Step 2: Set executable permission**
 
 ```bash
 sudo chmod +x /usr/local/bin/git-ai
 ```
 
-Step 3: Git エイリアスを登録
+**Step 3: Register the Git alias**
 
 ```bash
 git config --global alias.ai '!git-ai'
 ```
 
-Step 4: 確認
+**Step 4: Verify**
 
 ```bash
 git config --global --get alias.ai
-# 期待される出力: !git-ai
+# Expected output: !git-ai
 ```
 
 ---
 
-## 使い方
+## Usage
 
 ```bash
 git add .
 
-# モデルを自動検出（claude → copilot → codex）
+# Auto-detect model (claude → copilot → codex)
 git ai commit
 
-# モデルを指定
+# Specify a model
 git ai commit claude
 git ai commit copilot
 git ai commit codex
 
-# エディタ（vi）でレビュー・編集してからコミット
+# Open editor (vi) to review/edit before committing
 git ai commit --edit
 git ai commit codex --edit
 git ai commit -e
@@ -95,17 +94,17 @@ git ai commit -e
 
 ---
 
-## 仕組み
+## How It Works
 
-1. `git diff --staged` でステージング済みの差分を取得
-2. 差分とプロンプトを選択した AI CLI に送信（スピナーアニメーションを表示）
-3. モデルが未インストールまたは失敗した場合、自動的に次のモデルへ切り替え
-4. 提案されたコミットメッセージを表示
-5. `--edit` / `-e` を指定した場合は vi でレビュー、指定なしの場合はそのままコミット
+1. Reads `git diff --staged` to get the staged diff
+2. Sends the diff + prompt to the selected AI CLI with a spinner animation
+3. If the model is not installed or fails, automatically tries the next one
+4. Displays the proposed commit message
+5. If `--edit` / `-e` is passed, opens vi for review; otherwise commits directly
 
 ---
 
-## 実行例
+## Example Output
 
 ```
 $ git ai commit
@@ -124,7 +123,7 @@ $ git ai commit --edit
 ---
 Proposed: fix: handle nil pointer in config loader
 ---
-# vi が開く → 確認・編集 → :wq でコミット確定
+# vi opens → review/edit → :wq to finalize commit
 ```
 
 ---
